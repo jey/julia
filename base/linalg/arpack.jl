@@ -9,7 +9,7 @@ function aupd_wrapper(T, matvecA::Function, matvecB::Function, solveSI::Function
                       nev::Integer, ncv::Integer, which::ASCIIString, 
                       tol::Real, maxiter::Integer, mode::Integer, v0::Vector)
 
-    lworkl = cmplx ? ncv * (3*ncv + 5) : (sym ? ncv * (ncv + 8) :  ncv * (3*ncv + 6) )
+    lworkl = cmplx ? 3 * ncv * (ncv + 5) : (sym ? ncv * (ncv + 8) :  3 * ncv * (ncv + 6) )
     TR = cmplx ? T.types[1] : T
     TOL = Array(TR, 1)
     TOL[1] = tol
