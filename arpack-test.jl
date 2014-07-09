@@ -13,7 +13,7 @@ function aupd_wrapper(T, matvecA::Function, matvecB::Function, solveSI::Function
                       nev::Integer, ncv::Integer, which::ASCIIString, 
                       tol::Real, maxiter::Integer, mode::Integer, v0::Vector)
 
-    lworkl = cmplx ? ncv * (3*ncv + 5) : (sym ? ncv * (ncv + 8) :  ncv * (3*ncv + 6) )
+    lworkl = cmplx ? 3 * ncv * (ncv + 5) : (sym ? ncv * (ncv + 8) :  3 * ncv * (ncv + 6) )
     TR = cmplx ? T.types[1] : T
     TOL = Array(TR, 1)
     TOL[1] = tol
@@ -37,20 +37,26 @@ function aupd_wrapper(T, matvecA::Function, matvecB::Function, solveSI::Function
     iparam[1] = blas_int(1)       # ishifts
     iparam[3] = blas_int(maxiter) # maxiter
     iparam[7] = blas_int(mode)    # mode
+    println("mode = ", mode)
 
     zernm1 = 0:(n-1)
 
     while true
         if cmplx
+            println("znaupd")
             naupd(ido, bmat, n, which, nev, TOL, resid, ncv, v, n,
                   iparam, ipntr, workd, workl, lworkl, rwork, info)            
         elseif sym
+            println("dsaupd")
             saupd(ido, bmat, n, which, nev, TOL, resid, ncv, v, n,
                   iparam, ipntr, workd, workl, lworkl, info)
         else
+            println("dnaupd")
             naupd(ido, bmat, n, which, nev, TOL, resid, ncv, v, n,
                   iparam, ipntr, workd, workl, lworkl, info)
         end
+
+        println("ido = ", ido[1], ", info = ", info[1])
 
         # Check for warnings and errors
         # Refer to ex-*.doc files in ARPACK/DOCUMENTS for calling sequence
@@ -307,16 +313,18 @@ function eigs(A, B;
         matvecB(x) = x
         if !isshift         #    Regular mode
             mode       = 1
-            solveSI(x) = x
+            solveSI(x) = assert(false)
         else                #    Shift-invert mode
             mode       = 3
-            solveSI(x) = factorize(sigma==0 ? A : A - UniformScaling(sigma)) \ x
+            F = factorize(sigma==0 ? A : A - UniformScaling(sigma))
+            solveSI(x) = F \ x
         end
     else                    # Generalized eigen problem
         matvecB(x) = B * x
         if !isshift         #    Regular inverse mode
             mode       = 2
-            solveSI(x) = factorize(B) \ x
+            F = factorize(B)
+            solveSI(x) = F \ x
         else                #    Shift-invert mode
             mode       = 3
             solveSI(x) = factorize(sigma==0 ? A : A-sigma*B) \ x
@@ -339,6 +347,9 @@ function eigs(A, B;
     end
 
 end
+
+
+#=
 
 # SRC: test/arpack.jl
 begin
@@ -449,3 +460,20 @@ v2/=trace(v2)
 
 @test_approx_eq eigs(speye(50), nev=10)[1] ones(10) #Issue 4246
 
+=#
+
+
+
+A = [
+         1.0   1.0   1.0   1.0   1.0   1.0   1.0  1.0
+        -1.0   2.0   0.0   0.0   0.0   0.0   0.0  1.0
+        -1.0   0.0   3.0   0.0   0.0   0.0   0.0  1.0
+        -1.0   0.0   0.0   4.0   0.0   0.0   0.0  1.0
+        -1.0   0.0   0.0   0.0   5.0   0.0   0.0  1.0
+        -1.0   0.0   0.0   0.0   0.0   6.0   0.0  1.0
+        -1.0   0.0   0.0   0.0   0.0   0.0   7.0  1.0
+        -1.0  -1.0  -1.0  -1.0  -1.0  -1.0  -1.0  8.0
+       ];
+
+show(eigs(A, which="SM", nev=3, sigma=0))
+println()
