@@ -11,6 +11,7 @@ export
     Test,
     BLAS,
     LAPACK,
+    LLJL,
 
 # Types
     AbstractMatrix,

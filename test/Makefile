@@ -10,6 +10,8 @@ TESTS = all core keywordargs numbers strings unicode collections hashing	\
 	sysinfo rounding ranges mod2pi euler show lineedit      \
 	replcompletions backtrace repl test goto
 
+TESTS += lljl
+
 default: all
 
 $(TESTS) ::

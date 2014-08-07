@@ -63,6 +63,7 @@ include("iterator.jl")
 # compiler
 import Core.Undef  # used internally by compiler
 include("inference.jl")
+include("LLJL.jl")
 
 # For OS specific stuff in I/O
 include("osutils.jl")
