@@ -458,7 +458,7 @@ methods. To that end, here is beginning of
 `rational.jl <https://github.com/JuliaLang/julia/blob/master/base/rational.jl>`_,
 which implements Julia's :ref:`man-rational-numbers`::
 
-    type Rational{T<:Integer} <: Real
+    immutable Rational{T<:Integer} <: Real
         num::T
         den::T
 
@@ -488,7 +488,7 @@ which implements Julia's :ref:`man-rational-numbers`::
         complex(real(xy)//yy, imag(xy)//yy)
     end
 
-The first line — ``type Rational{T<:Int} <: Real`` — declares that
+The first line — ``immutable Rational{T<:Int} <: Real`` — declares that
 ``Rational`` takes one type parameter of an integer type, and is itself
 a real type. The field declarations ``num::T`` and ``den::T`` indicate
 that the data held in a ``Rational{T}`` object are a pair of integers of
